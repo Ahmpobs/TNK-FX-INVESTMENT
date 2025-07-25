@@ -1,0 +1,29 @@
+<h2>Admin Dashboard</h2>
+<div id="userList"></div>
+<script>
+  async function loadUsers() {
+    const res = await fetch("http://localhost:5000/admin/users");
+    const users = await res.json();
+    const list = users.map(u => `
+      <div>
+        ${u.name} (${u.email}) - Balance: $${u.balance}
+        <form onsubmit="event.preventDefault(); updateBalance('${u.email}', this.balance.value)">
+          <input name="balance" placeholder="New balance">
+          <button>Update</button>
+        </form>
+      </div>
+    `).join("");
+    document.getElementById("userList").innerHTML = list;
+  }
+  loadUsers();
+
+  async function updateBalance(email, balance) {
+    await fetch("http://localhost:5000/admin/update-balance", {
+      method: "POST",
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, balance })
+    });
+    alert("Balance updated!");
+    loadUsers();
+  }
+</script>
